@@ -13,6 +13,7 @@ CrossSearch is a tool designed to identify cross-seedable torrents by searching 
 ## Usage
 
 1. **Configure Environment Variables**:
+   - Clone the repository
    - Use the `.env.example` file as a template.
    - Rename it to `.env`
    - Set the required environment variables (e.g., API keys, Prowlarr host, and port).
@@ -20,12 +21,11 @@ CrossSearch is a tool designed to identify cross-seedable torrents by searching 
 2. **Run with Docker**:
    - Build and run the application using Docker:
      ```bash
-     docker build -t crosssearch .
-     docker run --env-file .env -p 8501:8501 crosssearch
+     docker compose up -d
      ```
 
 3. **Access the Application**:
-   - Open your browser and navigate to `http://localhost:8501`.
+   - Open your browser and navigate to `http://localhost:8505`.
 
 ## Environment Variables
 
