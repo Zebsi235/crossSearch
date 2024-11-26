@@ -1,0 +1,22 @@
+---
+services:
+  streamlit-app:
+    build: .
+    container_name: crossSearch
+#    user: "3000:3000"
+    restart: unless-stopped
+    ports:
+      - "8505:8505"
+    volumes:
+      - ./app:/app  # Mount the app directory for live updates
+    env_file: ./.env
+    environment:
+      - STREAMLIT_SERVER_PORT=8505
+      - TZ=Europe/Berlin
+    command: >
+      /bin/bash -c "streamlit run /app/app.py 8505" 
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
