@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from api import fetch_and_save_all_torrents, fetch_trackers, generateTopTitleList, fetch_torrents_multi
 from compare import compare_torrents
+from config import API_KEY_OMDB, TMDB_API_KEY
 
 from collections import defaultdict
 
@@ -89,40 +90,43 @@ if page == "Compare Top":
     st.session_state.top_torrents_limit = st.number_input("Number of Tops to fetch",min_value=1, value=25)
     
     if st.button("Compare"):
-        try:
-            # Initialize progress bar and status
-            progress_bar = st.progress(0)
+        if TMDB_API_KEY == "":
+            st.error("Please provide a TMDB API KEY")
+        else:
+            try:
+                # Initialize progress bar and status
+                progress_bar = st.progress(0)
 
-            status_text = st.empty()
+                status_text = st.empty()
 
-            #all_torrents = []
-            torrents = []
+                #all_torrents = []
+                torrents = []
 
-            progress_step = (1 / st.session_state.top_torrents_limit*len(trackers))
+                progress_step = (1 / st.session_state.top_torrents_limit*len(trackers))
 
-            st.write(f"Searching Top {st.session_state.top_torrents_limit} torrents on {len(trackers)} trackers")
-            top_title_list = generateTopTitleList(st.session_state.top_torrents_limit ,st.session_state.save_file)
+                st.write(f"Searching Top {st.session_state.top_torrents_limit} torrents on {len(trackers)} trackers")
+                top_title_list = generateTopTitleList(st.session_state.top_torrents_limit ,st.session_state.save_file)
 
-            torrents = fetch_and_save_all_torrents(top_title_list, indexer_list=[tracker_id for i, tracker_id in enumerate(trackers)], progress_callback=lambda p: progress_bar.progress(p))
-            
-            # Compare torrents
-            st.write("Comparing torrents...")
-            matches = compare_torrents(torrents)
+                torrents = fetch_and_save_all_torrents(top_title_list, indexer_list=[tracker_id for i, tracker_id in enumerate(trackers)], progress_callback=lambda p: progress_bar.progress(p))
+                
+                # Compare torrents
+                st.write("Comparing torrents...")
+                matches = compare_torrents(torrents)
 
-            if matches:
-                showMatches(matches)
-            else:
-                st.warning("No identical torrents found.")
+                if matches:
+                    showMatches(matches)
+                else:
+                    st.warning("No identical torrents found.")
 
-            if st.session_state.show_all_torrents:
-            # # Display torrents in tables
-                showTorrents(torrents)
+                if st.session_state.show_all_torrents:
+                # # Display torrents in tables
+                    showTorrents(torrents)
 
-            # Clear progress bar and status text
-            progress_bar.empty()
-            status_text.empty()
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+                # Clear progress bar and status text
+                progress_bar.empty()
+                status_text.empty()
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
 #################### Search #########################
 elif page == "Search":
