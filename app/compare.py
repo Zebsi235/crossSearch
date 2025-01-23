@@ -1,28 +1,49 @@
 from collections import defaultdict
+import  re 
+import streamlit as st # Debug only
+def normalize_title(title):
+    """
+    Normalize the title by removing special characters, converting to lowercase,
+    and removing the .mkv extension if it exists.
+    """
+    title = title.lower()
+    title = re.sub(r'\.mkv', '', title)  # Remove .mkv extension if it exists
+    title = re.sub(r'\s+', '', title)  # Normalize whitespaces
+    title = re.sub(r'[^\w\s]', '', title)  # Remove punctuation
+    return title.strip()
+
 
 def compare_torrents(all_torrents):
+
     grouped_torrents = defaultdict(list)
 
-    # Group torrents by title (case-insensitive)
+    # Normalize titles and group torrents by normalized title
     for torrent in all_torrents:
-        grouped_torrents[torrent['title']].append(torrent)
+        normalized_title = normalize_title(torrent['title'])
+        #st.write(f"Adding {torrent} to size group {normalized_title}")
+        grouped_torrents[normalized_title].append(torrent)
 
-    prematches = []
     matches = []
 
-    # Find matches within each group of torrents with the same title
+    # Check for multiple indexers and same size within each title group
     for title, torrents in grouped_torrents.items():
-        if len(torrents) >= 2:  # Only consider titles that appear in more than one tracker
-            size_set = set(t['size'] for t in torrents)  # Get unique sizes
-            if len(size_set) == 1:  # All torrents must have the same size to match
-                prematches.append({
-                    "title": title,
-                    "size": list(size_set)[0],  # Use the single unique size
-                    "indexers": list({t['indexer'] for t in torrents})  # Unique list of indexers
-                })
+        # Group torrents by size
+        size_groups = defaultdict(list)
+        for torrent in torrents:
+            norm_size = int(torrent['size'])
 
-    for match in prematches:
-        if len(match["indexers"]) > 1:
-            matches.append(match)
+            size_groups[norm_size].append(torrent)
+        #st.write(size_groups)
+        # For each size group, check if there are torrents from multiple indexers
+        for size, torrents_with_same_size in size_groups.items():
+            indexers = {torrent['indexer'] for torrent in torrents_with_same_size}
+
+            if len(indexers) > 1:  # If there are torrents from multiple indexers
+                matches.append({
+                    "title": title,
+                    "size": size,
+                    "indexers": list(indexers),
+                    "matched_torrents": torrents_with_same_size
+                })
 
     return matches

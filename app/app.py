@@ -49,7 +49,7 @@ def showMatches(matches):
             
             # Display basic torrent info in the first column
             with col1:
-                st.markdown(f"### {match['title']}")
+                st.markdown(f"##### {match['matched_torrents'][0]['title']}")
                 st.markdown(f"- **Size:** {match['size']} bytes")
             
             # Display tracker information in the second column
@@ -112,6 +112,7 @@ if page == "Compare Top":
                 # Compare torrents
                 st.write("Comparing torrents...")
                 matches = compare_torrents(torrents)
+                
 
                 if matches:
                     showMatches(matches)
@@ -139,10 +140,13 @@ elif page == "Search":
             status_text = st.empty()
 
             torrents = fetch_torrents_multi(indexer_ids=[tracker_id for i, tracker_id in enumerate(trackers)], title=st.session_state.u_input)
+            
             # Compare torrents
-            st.write("Comparing torrents...")
+            st.write(f"Comparing torrents...")
             matches = compare_torrents(torrents)
+            #st.write(f"Compared torrents: {matches}")
             st.write("Done.")
+            
 
             if matches:
                 showMatches(matches)

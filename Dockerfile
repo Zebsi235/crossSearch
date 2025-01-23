@@ -1,7 +1,7 @@
 FROM python:3.9-slim
 
 # Install necessary packages
-RUN apt-get update 
+RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
